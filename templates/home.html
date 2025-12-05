@@ -5,6 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather App — Get Real-Time Weather Forecasts</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .autocomplete-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid var(--primary-blue);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .autocomplete-list.active {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border-gray);
+            transition: background-color var(--transition);
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.selected {
+            background-color: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item em {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        #city:focus ~ .autocomplete-list {
+            display: block;
+        }
+
+        .autocomplete-list:hover {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -13,17 +70,21 @@
             
             <p class="text-center text-muted">Get real-time weather forecasts for any city worldwide</p>
             
-            <form method="GET" action="/forecast" class="mt-30">
+            <form method="GET" action="/forecast" class="mt-30" id="weatherForm">
                 <div class="form-group">
                     <label for="city">City Name</label>
-                    <input 
-                        type="text" 
-                        id="city" 
-                        name="city" 
-                        placeholder="e.g., London, New York, Tokyo" 
-                        required
-                        autocomplete="off"
-                    >
+                    <div class="autocomplete-container">
+                        <input 
+                            type="text" 
+                            id="city" 
+                            name="city" 
+                            placeholder="e.g., London, Istanbul, Tokyo..." 
+                            required
+                            autocomplete="off"
+                            minlength="1"
+                        >
+                        <ul class="autocomplete-list" id="autocompleteList"></ul>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -42,10 +103,126 @@
 
             <div class="mt-30 text-center">
                 <p class="text-muted" style="font-size: 0.85rem;">
-                    💡 Tip: Try searching for your city to get started!
+                    💡 Tip: Start typing a city name to see suggestions!
                 </p>
             </div>
         </div>
     </div>
+
+    <script>
+        // Popular cities database
+        const popularCities = [
+            "London", "Paris", "Berlin", "Amsterdam", "Barcelona", "Madrid",
+            "Rome", "Venice", "Athens", "Istanbul", "Moscow", "Vienna",
+            "Prague", "Budapest", "Warsaw", "Krakow", "Dublin", "Edinburgh",
+            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Miami",
+            "San Francisco", "Seattle", "Boston", "Denver", "Las Vegas", "Orlando",
+            "Toronto", "Vancouver", "Mexico City", "São Paulo", "Rio de Janeiro", "Buenos Aires",
+            "Tokyo", "Bangkok", "Singapore", "Hong Kong", "Seoul", "Beijing",
+            "Shanghai", "Mumbai", "Delhi", "Dubai", "Cairo", "Sydney",
+            "Melbourne", "Auckland", "Jakarta", "Manila", "Hanoi", "Ho Chi Minh",
+            "Istanbul", "Ankara", "Izmir", "Ankara", "Antalya", "Bursa",
+            "Ankara", "Adana", "Gaziantep", "Konya", "Erzurum", "Trabzon",
+            "Diyarbakır", "Mersin", "Kayseri", "Eskişehir", "Samsun"
+        ];
+
+        const cityInput = document.getElementById('city');
+        const autocompleteList = document.getElementById('autocompleteList');
+        let selectedIndex = -1;
+
+        // Filter and display autocomplete suggestions
+        function showSuggestions(value) {
+            autocompleteList.innerHTML = '';
+            selectedIndex = -1;
+
+            if (!value || value.trim().length === 0) {
+                autocompleteList.classList.remove('active');
+                return;
+            }
+
+            const filtered = popularCities.filter(city =>
+                city.toLowerCase().startsWith(value.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                autocompleteList.classList.remove('active');
+                return;
+            }
+
+            filtered.forEach((city, index) => {
+                const li = document.createElement('li');
+                li.className = 'autocomplete-item';
+                li.innerHTML = city.replace(
+                    new RegExp(`^${value}`, 'i'),
+                    match => `<em>${match}</em>`
+                );
+                
+                li.addEventListener('click', () => {
+                    cityInput.value = city;
+                    autocompleteList.classList.remove('active');
+                });
+
+                li.addEventListener('mouseenter', () => {
+                    document.querySelectorAll('.autocomplete-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    li.classList.add('selected');
+                    selectedIndex = index;
+                });
+
+                autocompleteList.appendChild(li);
+            });
+
+            autocompleteList.classList.add('active');
+        }
+
+        // Input event listener
+        cityInput.addEventListener('input', (e) => {
+            showSuggestions(e.target.value);
+        });
+
+        // Keyboard navigation
+        cityInput.addEventListener('keydown', (e) => {
+            const items = document.querySelectorAll('.autocomplete-item');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % items.length;
+                document.querySelectorAll('.autocomplete-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                items[selectedIndex]?.classList.add('selected');
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+                document.querySelectorAll('.autocomplete-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                items[selectedIndex]?.classList.add('selected');
+            } else if (e.key === 'Enter') {
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                    e.preventDefault();
+                    cityInput.value = items[selectedIndex].textContent;
+                    autocompleteList.classList.remove('active');
+                }
+            } else if (e.key === 'Escape') {
+                autocompleteList.classList.remove('active');
+            }
+        });
+
+        // Close autocomplete when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target !== cityInput && e.target !== autocompleteList) {
+                autocompleteList.classList.remove('active');
+            }
+        });
+
+        // Focus behavior
+        cityInput.addEventListener('focus', () => {
+            if (cityInput.value.trim().length > 0) {
+                showSuggestions(cityInput.value);
+            }
+        });
+    </script>
 </body>
 </html>

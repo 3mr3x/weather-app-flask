@@ -26,7 +26,53 @@ class WeatherAPI:
         elif response.status_code != 200:
             abort(500, f"API request failed with status code {response.status_code}: {response.text}")
 
-        return response.json()
+        data = response.json()
+        return self._format_weather_data(data, period, city)
+
+    def _format_weather_data(self, data, period, city):
+        """Format API response data for template rendering"""
+        formatted = {}
+        
+        if period == 'daily':
+            # Format current weather data
+            if 'main' in data and 'weather' in data:
+                formatted['current_weather'] = {
+                    'temp': data['main']['temp'],
+                    'feels_like': data['main'].get('feels_like', data['main']['temp']),
+                    'humidity': data['main']['humidity'],
+                    'pressure': data['main']['pressure'],
+                    'visibility': data.get('visibility', 10000),
+                    'wind_speed': data['wind']['speed'],
+                    'main': data['weather'][0]['main'],
+                    'description': data['weather'][0]['description']
+                }
+                formatted['city'] = data.get('name', city)
+                formatted['period'] = 'daily'
+        
+        elif period == 'weekly':
+            # Format 5-day forecast data
+            if 'list' in data:
+                forecast_list = []
+                seen_days = set()
+                
+                for item in data['list']:
+                    dt_txt = item['dt_txt']
+                    day = dt_txt.split(' ')[0]
+                    
+                    # Only include one forecast per day
+                    if day not in seen_days:
+                        seen_days.add(day)
+                        forecast_list.append({
+                            'date': day,
+                            'temp': item['main']['temp'],
+                            'condition': item['weather'][0]['main']
+                        })
+                
+                formatted['forecast_data'] = forecast_list[:5]
+                formatted['city'] = data.get('city', {}).get('name', city)
+                formatted['period'] = 'weekly'
+        
+        return formatted
 
 weather_api = WeatherAPI(API_KEY)
 
@@ -43,14 +89,17 @@ def get_weather():
         abort(400, 'Missing argument city or period')
 
     try:
-        weather_data = weather_api.fetch_weather_data(city, period)
-
-        if period == 'daily' and 'main' not in weather_data:
+        formatted_data = weather_api.fetch_weather_data(city, period)
+        
+        # Check if data was formatted correctly
+        if period == 'daily' and 'current_weather' not in formatted_data:
             abort(404, f"City '{city}' not found or invalid data returned by API.")
-        elif period == 'weekly' and 'list' not in weather_data:
+        elif period == 'weekly' and 'forecast_data' not in formatted_data:
             abort(404, f"City '{city}' not found or invalid data returned by API.")
 
-        return render_template('index.html', title='Weather Forecast', data=weather_data, period=period)
+        return render_template('index.html', 
+                             title='Weather Forecast', 
+                             **formatted_data)
     except Exception as e:
         abort(500, f'Error fetching weather data: {e}')
 

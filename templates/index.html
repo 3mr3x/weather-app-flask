@@ -53,9 +53,9 @@
                 </div>
             </div>
 
-            {% if forecast_data %}
-            <!-- Forecast Section -->
-            <div class="mt-30">
+            {% elif forecast_data %}
+            <!-- Weekly Forecast Section -->
+            <div>
                 <h2 style="margin-top: 0;">📅 {{ period|capitalize }} Forecast</h2>
                 <div class="forecast-grid">
                     {% for day in forecast_data %}
@@ -67,7 +67,6 @@
                     {% endfor %}
                 </div>
             </div>
-            {% endif %}
 
             {% else %}
             <div class="alert alert-error">
@@ -77,12 +76,9 @@
             {% endif %}
 
             <div class="mt-30 text-center">
-                <form action="/" method="get">
-                    <input type="hidden" name="city" value="">
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='/'">
-                        Search Another City
-                    </button>
-                </form>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='/'">
+                    ← Search Another City
+                </button>
             </div>
         </div>
     </div>
