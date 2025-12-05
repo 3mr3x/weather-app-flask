@@ -1,54 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Weather App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .container {
-            width: 50%;
-            margin: auto;
-            text-align: center;
-        }
-
-        select, button {
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        table {
-            font-family: Arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        td, th {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Select a City</h1>
-        <form action="/forecast" method="get">
-            <select name="city" required>
-                <option value="">Select a city</option>
-                <option value="New York">New York</option>
-                <option value="Los Angeles">Los Angeles</option>
-                <option value="Chicago">Chicago</option>
-                <!-- Diğer şehirler burada listelenebilir -->
-            </select>
-            <button type="submit">Get Weather</button>
-        </form>
+        <div class="card">
+            <h1>🌤️ Weather Forecast</h1>
+            
+            <form method="GET" action="/forecast" class="mt-30">
+                <div class="form-group">
+                    <label for="city">City Name</label>
+                    <input 
+                        type="text" 
+                        id="city" 
+                        name="city" 
+                        placeholder="Search for a city..." 
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="period">Forecast Period</label>
+                    <select id="period" name="period" required>
+                        <option value="">— Select period —</option>
+                        <option value="daily">📅 Daily Forecast</option>
+                        <option value="weekly">📊 Weekly Forecast (5 Days)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-block">
+                    Get Forecast
+                </button>
+            </form>
+
+            <div class="mt-30 text-center">
+                <a href="/" class="btn btn-secondary">← Return Home</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>

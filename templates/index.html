@@ -1,102 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{{ title }}</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f8ff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} — Weather Forecast</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="space-between mb-30">
+                <h1 style="margin: 0;">📍 {{ city }}</h1>
+                <a href="/" class="btn btn-secondary btn-small">← Back</a>
+            </div>
 
-        .banner {
-            width: 90%;
-            max-width: 1200px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 20px;
-            border-radius: 4px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+            {% if current_weather %}
+            <!-- Current Weather Card -->
+            <div class="weather-card">
+                <div class="weather-card-content">
+                    <div class="weather-description">{{ current_weather.main }}</div>
+                    <div class="temperature">{{ (current_weather.temp|float|round(1)) }}°C</div>
+                    <p class="text-muted">Feels like {{ (current_weather.feels_like|float|round(1)) }}°C</p>
+                </div>
+                <div class="weather-card-icon">
+                    {% if 'rain' in current_weather.main.lower() %}⛈️
+                    {% elif 'cloud' in current_weather.main.lower() %}☁️
+                    {% elif 'clear' in current_weather.main.lower() %}☀️
+                    {% elif 'snow' in current_weather.main.lower() %}❄️
+                    {% elif 'mist' in current_weather.main.lower() %}🌫️
+                    {% else %}🌤️
+                    {% endif %}
+                </div>
+            </div>
 
-        .form-container {
-            width: 90%;
-            max-width: 1200px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+            <!-- Weather Details Grid -->
+            <div class="weather-details mt-30">
+                <div class="detail-item">
+                    <div class="detail-label">Humidity</div>
+                    <div class="detail-value">{{ current_weather.humidity }}%</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Wind Speed</div>
+                    <div class="detail-value">{{ (current_weather.wind_speed|float|round(1)) }} m/s</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Pressure</div>
+                    <div class="detail-value">{{ current_weather.pressure }} hPa</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Visibility</div>
+                    <div class="detail-value">{{ (current_weather.visibility|float|round(1)/1000)|round(1) }} km</div>
+                </div>
+            </div>
 
-        .button, .pdf-button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
+            {% if forecast_data %}
+            <!-- Forecast Section -->
+            <div class="mt-30">
+                <h2 style="margin-top: 0;">📅 {{ period|capitalize }} Forecast</h2>
+                <div class="forecast-grid">
+                    {% for day in forecast_data %}
+                    <div class="forecast-item">
+                        <div class="forecast-day">{{ day.date }}</div>
+                        <div class="forecast-temp">{{ (day.temp|float|round(1)) }}°C</div>
+                        <div class="forecast-condition">{{ day.condition }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
 
-        .button:hover, .pdf-button:hover {
-            background-color: #45a049;
-        }
+            {% else %}
+            <div class="alert alert-error">
+                <span class="alert-icon">⚠️</span>
+                <div>No weather data available for this city.</div>
+            </div>
+            {% endif %}
 
-        .pdf-button {
-            background-color: #007BFF;
-            margin-top: 10px;
-        }
-
-        .city-info {
-            width: 90%;
-            max-width: 1200px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .search-bar {
-            margin-top: 10px;
-            width: 80%;
-            max-width: 400px;
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        table {
-            font-family: Arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%; /* Tablo genişliğini %100 olarak ayarlıyoruz */
-            margin: 0 0 50px; /* Üst ve alt margin ayarları */
-        }
-
-        td, th {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-            word-wrap: break-word;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        img {
-            width: 50px; /* İkon boyutunu buradan ayarlayabilirsiniz */
-            height: auto;
-        }
-
-        @media (max-width: 768px) {
-            .banner, .form-container, .city-info {
-                width: 95%;
-            }
+            <div class="mt-30 text-center">
+                <form action="/" method="get">
+                    <input type="hidden" name="city" value="">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='/'">
+                        Search Another City
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
 
             .search-bar {
                 width: 100%;

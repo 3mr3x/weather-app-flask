@@ -2,34 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }}</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-        }
-        .button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} — Weather App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>{{ title }}</h1>
-    <p>{{ error_message }}</p> <!-- Display the error message here -->
-    <a href="/" class="button">Return to Home Page</a>
+    <div class="container">
+        <div class="card">
+            <div class="text-center">
+                <h1 style="color: var(--error-red); font-size: 3rem; margin: 0 0 20px 0;">⚠️</h1>
+                <h1>{{ title }}</h1>
+                
+                <div class="alert alert-error mt-30 mb-30">
+                    <span class="alert-icon">×</span>
+                    <div>
+                        <strong>Error:</strong> {{ error_message }}
+                    </div>
+                </div>
+
+                <p class="text-muted">
+                    The requested resource could not be found or an error occurred while processing your request.
+                </p>
+
+                <div class="mt-30">
+                    <a href="/" class="btn btn-primary">← Return Home</a>
+                </div>
+
+                <p class="text-muted" style="margin-top: 30px; font-size: 0.85rem;">
+                    If this problem persists, please try searching for a different city or contact support.
+                </p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

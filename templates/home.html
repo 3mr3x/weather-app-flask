@@ -1,61 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Flask ile yazılan Hava Durumu uygulamasına hoşgeldin</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f8ff;
-        }
-
-        .container {
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        input, button, select {
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        .button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App — Get Real-Time Weather Forecasts</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to the Weather App</h1>
-        <form action="/forecast" method="get">
-            <input type="text" name="city" placeholder="Enter city" required>
-            <select name="period" required>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-            </select>
-            <button type="submit" class="button">Get Weather</button>
-        </form>
+        <div class="card card-compact">
+            <h1>🌤️ Weather</h1>
+            
+            <p class="text-center text-muted">Get real-time weather forecasts for any city worldwide</p>
+            
+            <form method="GET" action="/forecast" class="mt-30">
+                <div class="form-group">
+                    <label for="city">City Name</label>
+                    <input 
+                        type="text" 
+                        id="city" 
+                        name="city" 
+                        placeholder="e.g., London, New York, Tokyo" 
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="period">Forecast Period</label>
+                    <select id="period" name="period" required>
+                        <option value="">— Select period —</option>
+                        <option value="daily">📅 Daily Forecast</option>
+                        <option value="weekly">📊 Weekly Forecast (5 Days)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-block mt-30">
+                    Search Weather
+                </button>
+            </form>
+
+            <div class="mt-30 text-center">
+                <p class="text-muted" style="font-size: 0.85rem;">
+                    💡 Tip: Try searching for your city to get started!
+                </p>
+            </div>
+        </div>
     </div>
 </body>
 </html>
